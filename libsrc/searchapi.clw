@@ -104,11 +104,13 @@ scm                             &TSearchCatalogManager
 !!!region TSearchCatalogManager
 TSearchCatalogManager.Construct   PROCEDURE()
   CODE
-  
+  SELF.m_COMIniter &= NEW CCOMIniter
+
 TSearchCatalogManager.Destruct    PROCEDURE()
   CODE
   SELF.Release()
-  
+  DISPOSE(SELF.m_COMIniter)
+
 TSearchCatalogManager.Init    PROCEDURE(LONG pAddr)
   CODE
   IF pAddr
@@ -148,10 +150,12 @@ scsm                                            &TSearchCrawlScopeManager
 !!!region TSearchCrawlScopeManager
 TSearchCrawlScopeManager.Construct    PROCEDURE()
   CODE
-  
+  SELF.m_COMIniter &= NEW CCOMIniter
+
 TSearchCrawlScopeManager.Destruct PROCEDURE()
   CODE
   SELF.Release()
+  DISPOSE(SELF.m_COMIniter)
 
 TSearchCrawlScopeManager.Init PROCEDURE(LONG pAddr)
   CODE
@@ -225,14 +229,6 @@ hr                                  HRESULT, AUTO
 !!!endregion
   
 !!!region TSearchApiHelper
-TSearchApiHelper.Construct    PROCEDURE()
-  CODE
-  SELF.m_COMIniter &= NEW CCOMIniter
-
-TSearchApiHelper.Destruct     PROCEDURE()
-  CODE
-  DISPOSE(SELF.m_COMIniter)
-
 TSearchApiHelper.GetCrawlScopeManager PROCEDURE(<STRING pCatalog>)
 sm                                      TSearchManager
 scm                                     &TSearchCatalogManager

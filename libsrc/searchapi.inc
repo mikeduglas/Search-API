@@ -15,6 +15,7 @@ GetCatalog                      PROCEDURE(STRING pszCatalog),*TSearchCatalogMana
                               END
 
 TSearchCatalogManager         CLASS, TYPE, MODULE('searchapi.clw'), LINK('searchapi.clw')
+m_COMIniter                     &CCOMIniter, PRIVATE
 m_scm                           &ISearchCatalogManager, PRIVATE
 
 Construct                       PROCEDURE()
@@ -42,6 +43,7 @@ GetCrawlScopeManager            PROCEDURE(),*TSearchCrawlScopeManager
                               END
 
 TSearchCrawlScopeManager      CLASS, TYPE, MODULE('searchapi.clw'), LINK('searchapi.clw')
+m_COMIniter                     &CCOMIniter, PRIVATE
 m_scsm                          &ISearchCrawlScopeManager, PRIVATE
 
 Construct                       PROCEDURE()
@@ -67,10 +69,6 @@ SaveAll                         PROCEDURE(), BOOL, PROC
                               END
 
 TSearchApiHelper              CLASS, TYPE, MODULE('searchapi.clw'), LINK('searchapi.clw')
-m_COMIniter                     &CCOMIniter, PRIVATE
-
-Construct                       PROCEDURE()
-Destruct                        PROCEDURE(), VIRTUAL
 GetCrawlScopeManager            PROCEDURE(<STRING pCatalog>), *TSearchCrawlScopeManager
 AddUserScopeRule                PROCEDURE(STRING pszURL, BOOL fInclude, BOOL fOverrideChildren, FOLLOW_FLAGS fFollowFlags), BOOL, PROC
 IncludeFolderRule               PROCEDURE(STRING pFolder), BOOL, PROC
