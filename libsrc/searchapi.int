@@ -1,0 +1,164 @@
+!* Search API
+!* mikeduglas@yandex.ru 2020
+
+!https://docs.microsoft.com/en-us/windows/win32/search/interfaces-for-managing-the-index
+!c:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Include\SearchAPI.h
+
+  INCLUDE('svcom.inc'), ONCE
+
+!DWORD                         EQUATE(LONG)
+
+PROXY_ACCESS                  EQUATE(LONG)
+PROXY_ACCESS_PRECONFIG        EQUATE(0)
+PROXY_ACCESS_DIRECT           EQUATE(PROXY_ACCESS_PRECONFIG + 1)
+PROXY_ACCESS_PROXY            EQUATE(PROXY_ACCESS_DIRECT + 1) 
+
+CatalogStatus                 EQUATE(LONG)
+CATALOG_STATUS_IDLE           EQUATE(0)
+CATALOG_STATUS_PAUSED         EQUATE(1)
+CATALOG_STATUS_RECOVERING     EQUATE(2)
+CATALOG_STATUS_FULL_CRAWL     EQUATE(3)
+CATALOG_STATUS_INCREMENTAL_CRAWL  EQUATE(4)
+CATALOG_STATUS_PROCESSING_NOTIFICATIONS   EQUATE(5)
+CATALOG_STATUS_SHUTTING_DOWN  EQUATE(6)
+
+CatalogPausedReason           EQUATE(LONG)
+CATALOG_PAUSED_REASON_NONE    EQUATE(0)
+CATALOG_PAUSED_REASON_HIGH_IO EQUATE(1)
+CATALOG_PAUSED_REASON_HIGH_CPU    EQUATE(2)
+CATALOG_PAUSED_REASON_HIGH_NTF_RATE   EQUATE(3)
+CATALOG_PAUSED_REASON_LOW_BATTERY EQUATE(4)
+CATALOG_PAUSED_REASON_LOW_MEMORY  EQUATE(5)
+CATALOG_PAUSED_REASON_LOW_DISK    EQUATE(6)
+CATALOG_PAUSED_REASON_DELAYED_RECOVERY    EQUATE(7)
+CATALOG_PAUSED_REASON_USER_ACTIVE EQUATE(8)
+CATALOG_PAUSED_REASON_EXTERNAL    EQUATE(9)
+CATALOG_PAUSED_REASON_UPGRADING EQUATE(10)
+
+PRIORITIZE_FLAGS              EQUATE(LONG)
+PRIORITIZE_FLAG_RETRYFAILEDITEMS  EQUATE(01H)
+PRIORITIZE_FLAG_IGNOREFAILURECOUNT    EQUATE(02H)
+
+CLUSION_REASON                EQUATE(LONG)
+CLUSIONREASON_UNKNOWNSCOPE    EQUATE(0)
+CLUSIONREASON_DEFAULT         EQUATE(1)
+CLUSIONREASON_USER            EQUATE(2)
+CLUSIONREASON_GROUPPOLICY     EQUATE(3)
+
+FOLLOW_FLAGS                  EQUATE(LONG)
+FF_INDEXCOMPLEXURLS           EQUATE(01h)
+FF_SUPPRESSINDEXING           EQUATE(02h)
+
+!ISearchManager interface
+!https://docs.microsoft.com/en-us/windows/desktop/api/Searchapi/nn-searchapi-isearchmanager
+
+!AB310581-AC80-11D1-8DF3-00C04FB6EF69
+IID_ISearchManager            GROUP
+data1                           LONG(0AB310581H)
+data2                           SHORT(0AC80H)
+data3                           SHORT(11D1H)
+data4                           STRING('<8DH><0F3H><0H><0C0H><4FH><0B6H><0EFH><69H>')
+                              END
+!7D096C5F-AC08-4f1f-BEB7-5C22C517CE39
+CLSID_ISearchManager          GROUP
+data1                           LONG(7D096C5FH)
+data2                           SHORT(0AC08H)
+data3                           SHORT(4f1fH)
+data4                           STRING('<0BEH><0B7H><5CH><22H><0C5H><17H><0CEH><39H>')
+                              END
+ISearchManager                INTERFACE(IUnknown),COM,TYPE
+GetIndexerVersionStr            PROCEDURE(LONG ppszVersionString),HRESULT ![out] LPWSTR *ppszVersionString
+GetIndexerVersion               PROCEDURE(*LONG pdwMajor, *LONG pdwMinor),HRESULT
+GetParameter                    PROCEDURE(LONG pszName, LONG ppValue),HRESULT ![in] LPCWSTR pszName, [out] PROPVARIANT **ppValue
+SetParameter                    PROCEDURE(LONG pszName, LONG ppValue),HRESULT ![in] LPCWSTR pszName, [in] PROPVARIANT *pValue
+get_ProxyName                   PROCEDURE(LONG ppszProxyName),HRESULT ![out] LPWSTR *ppszProxyName
+get_BypassList                  PROCEDURE(LONG ppszBypassList),HRESULT ![out] LPWSTR *ppszBypassList
+SetProxy                        PROCEDURE(PROXY_ACCESS sUseProxy, BOOL fLocalByPassProxy, LONG dwPortNumber, LONG pszProxyName, LONG pszByPassList),HRESULT
+GetCatalog                      PROCEDURE(LONG pszCatalog, LONG ppCatalogManager),HRESULT ![out] ISearchCatalogManager **ppCatalogManager
+get_UserAgent                   PROCEDURE(LONG ppszUserAgent),HRESULT ![out] LPWSTR *ppszUserAgent
+put_UserAgent                   PROCEDURE(LONG pszUserAgent),HRESULT
+get_UseProxy                    PROCEDURE(*PROXY_ACCESS pUseProxy),HRESULT
+get_LocalBypass                 PROCEDURE(*BOOL pfLocalBypass),HRESULT
+get_PortNumber                  PROCEDURE(*LONG pdwPortNumber),HRESULT
+                              END
+
+!ISearchCatalogManager interface
+!https://docs.microsoft.com/en-us/windows/desktop/api/Searchapi/nn-searchapi-isearchcatalogmanager
+
+!AB310581-AC80-11D1-8DF3-00C04FB6EF50
+IID_ISearchCatalogManager     GROUP
+data1                           LONG(0AB310581H)
+data2                           SHORT(0AC80H)
+data3                           SHORT(11D1H)
+data4                           STRING('<8DH><0F3H><0H><0C0H><4FH><0B6H><0EFH><50H>')
+                              END
+ISearchCatalogManager         INTERFACE(IUnknown),COM,TYPE
+get_Name                        PROCEDURE(LONG pszName),HRESULT ![out] LPWSTR *pszName
+GetParameter                    PROCEDURE(LONG pszName, LONG ppValue),HRESULT ![in] LPCWSTR pszName, [out]PROPVARIANT **ppValue
+SetParameter                    PROCEDURE(LONG pszName, LONG pValue),HRESULT ![in] LPCWSTR pszName, [in]PROPVARIANT *pValue
+GetCatalogStatus                PROCEDURE(*CatalogStatus pStatus, *CatalogPausedReason pPausedReason),HRESULT
+Reset                           PROCEDURE(),HRESULT
+Reindex                         PROCEDURE(),HRESULT
+ReindexMatchingURLs             PROCEDURE(LONG pszPattern),HRESULT
+ReindexSearchRoot               PROCEDURE(LONG pszRootURL),HRESULT
+put_ConnectTimeout              PROCEDURE(LONG dwConnectTimeout),HRESULT
+get_ConnectTimeout              PROCEDURE(*LONG dwConnectTimeout),HRESULT
+put_DataTimeout                 PROCEDURE(LONG dwDataTimeout),HRESULT
+get_DataTimeout                 PROCEDURE(*LONG dwDataTimeout),HRESULT
+NumberOfItems                   PROCEDURE(*LONG plCount),HRESULT
+NumberOfItemsToIndex            PROCEDURE(*LONG plIncrementalCount, *LONG plNotificationQueue, *LONG plHighPriorityQueue),HRESULT
+URLBeingIndexed                 PROCEDURE(LONG pszUrl),HRESULT ![out] LPWSTR *pszUrl
+GetURLIndexingState             PROCEDURE(LONG pszURL, *LONG pdwState),HRESULT ![in] LPCWSTR pszURL, [out] LONG *pdwState
+GetPersistentItemsChangedSink   PROCEDURE(LONG ppISearchPersistentItemsChangedSink),HRESULT ![out] ISearchPersistentItemsChangedSink **ppISearchPersistentItemsChangedSink
+RegisterViewForNotification     PROCEDURE(LONG pszView, LONG pViewChangedSink, *LONG pdwCookie),HRESULT ![in] LPCWSTR pszView, [in] ISearchViewChangedSink *pViewChangedSink, [out] DWORD *pdwCookie
+GetItemsChangedSink             PROCEDURE(LONG pISearchNotifyInlineSite, LONG riid, LONG ppv, LONG pGUIDCatalogResetSignature, LONG pGUIDCheckPointSignature, *LONG pdwLastCheckPointNumber),HRESULT ![in] ISearchNotifyInlineSite *pISearchNotifyInlineSite, [in] REFIID riid, [out] void **ppv, [out] GUID *pGUIDCatalogResetSignature, [out] GUID *pGUIDCheckPointSignature, [out] DWORD *pdwLastCheckPointNumber
+UnregisterViewForNotification   PROCEDURE(LONG dwCookie),HRESULT
+SetExtensionClusion             PROCEDURE(LONG pszExtension, BOOL fExclude),HRESULT
+EnumerateExcludedExtensions     PROCEDURE(LONG ppExtensions),HRESULT ![out] IEnumString **ppExtensions
+GetQueryHelper                  PROCEDURE(LONG ppSearchQueryHelper),HRESULT ![out] ISearchQueryHelper **ppSearchQueryHelper
+put_DiacriticSensitivity        PROCEDURE(BOOL fDiacriticSensitive),HRESULT
+get_DiacriticSensitivity        PROCEDURE(*BOOL pfDiacriticSensitive),HRESULT
+GetCrawlScopeManager            PROCEDURE(LONG ppCrawlScopeManager),HRESULT ![out] ISearchCrawlScopeManager **ppCrawlScopeManager
+                              END
+
+!ISearchCatalogManager2 interface
+
+!7AC3286D-4D1D-4817-84FC-C1C85E3AF0D9
+IID_ISearchCatalogManager2    GROUP
+data1                           LONG(7AC3286DH)
+data2                           SHORT(4D1DH)
+data3                           SHORT(4817H)
+data4                           STRING('<84H><0FCH><0C1H><0C8H><5EH><3AH><0F0H><0D9H>')
+                              END
+ISearchCatalogManager2        INTERFACE(ISearchCatalogManager),COM,TYPE
+PrioritizeMatchingURLs          PROCEDURE(LONG pszPattern, PRIORITIZE_FLAGS dwPrioritizeFlags),HRESULT
+                              END
+
+!ISearchCrawlScopeManager interface
+!https://docs.microsoft.com/en-us/windows/desktop/api/Searchapi/nn-searchapi-isearchcrawlscopemanager
+
+!AB310581-AC80-11D1-8DF3-00C04FB6EF55
+IID_ISearchCrawlScopeManager  GROUP
+data1                           LONG(0AB310581H)
+data2                           SHORT(0AC80H)
+data3                           SHORT(11D1H)
+data4                           STRING('<8DH><0F3H><0H><0C0H><4FH><0B6H><0EFH><55H>')
+                              END
+ISearchCrawlScopeManager      INTERFACE(IUnknown),COM,TYPE
+AddDefaultScopeRule             PROCEDURE(LONG pszURL, BOOL fInclude, LONG fFollowFlags),HRESULT
+AddRoot                         PROCEDURE(LONG pSearchRoot),HRESULT ![in] ISearchRoot *pSearchRoot
+RemoveRoot                      PROCEDURE(LONG pszURL),HRESULT
+EnumerateRoots                  PROCEDURE(LONG ppSearchRoots),HRESULT ![out] IEnumSearchRoots **ppSearchRoots
+AddHierarchicalScope            PROCEDURE(LONG pszURL, BOOL fInclude, BOOL fDefault, BOOL fOverrideChildren),HRESULT
+AddUserScopeRule                PROCEDURE(LONG pszURL, BOOL fInclude, BOOL fOverrideChildren, FOLLOW_FLAGS fFollowFlags),HRESULT
+RemoveScopeRule                 PROCEDURE(LONG pszRule),HRESULT
+EnumerateScopeRules             PROCEDURE(LONG ppSearchScopeRules),HRESULT ![out] IEnumSearchScopeRules **ppSearchScopeRules
+HasParentScopeRule              PROCEDURE(LONG pszURL, *BOOL pfHasParentRule),HRESULT
+HasChildScopeRule               PROCEDURE(LONG pszURL, *BOOL pfHasChildRule),HRESULT
+IncludedInCrawlScope            PROCEDURE(LONG pszURL, *BOOL pfIsIncluded),HRESULT
+IncludedInCrawlScopeEx          PROCEDURE(LONG pszURL, *BOOL pfIsIncluded, *CLUSION_REASON pReason),HRESULT
+RevertToDefaultScopes           PROCEDURE(),HRESULT
+SaveAll                         PROCEDURE(),HRESULT
+GetParentScopeVersionId         PROCEDURE(LONG pszURL, *LONG plScopeId),HRESULT
+RemoveDefaultScopeRule          PROCEDURE(LONG pszURL),HRESULT
+                              END
